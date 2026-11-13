@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use App\Models\Book;
 use App\Models\CartItem;
@@ -103,10 +104,24 @@ class TransactionController extends Controller
                         ->decrement('stock', $item->quantity);
                 }
 
+                $resultUrl = rtrim(config('midtrans.frontend_url'), '/')
+                    . '/payment/result?transaction_id=' . $transaction->id;
+
                 $params = [
+                    'callbacks' => [
+                        'finish' => $resultUrl,
+                        'pending' => $resultUrl,
+                        'error' => $resultUrl,
+                    ],
+
                     'enabled_payments' => [
                         'other_qris',
                         'bank_transfer',
+                    ],
+
+                    'callbacks' => [
+                        'finish' => rtrim(config('midtrans.frontend_url'), '/')
+                            . '/payment/result?transaction_id=' . $transaction->id,
                     ],
 
                     'transaction_details' => [
@@ -167,6 +182,55 @@ class TransactionController extends Controller
             return response()->json([
                 'message' => 'Akses tidak diizinkan.',
             ], 403);
+
+            // Periksa status terbaru langsung ke Midtrans
+            if (
+                $transaction->payment_status === 'pending' &&
+                $transaction->snap_token
+            ) {
+                try {
+                    $status = \Midtrans\Transaction::status(
+                        $transaction->order_number
+                    );
+
+                    $transactionStatus = $status->transaction_status ?? null;
+                    $fraudStatus = $status->fraud_status ?? null;
+
+                    if (
+                        $transactionStatus === 'settlement' ||
+                        (
+                            $transactionStatus === 'capture' &&
+                            $fraudStatus === 'accept'
+                        )
+                    ) {
+                        $transaction->payment_status = 'paid';
+                        $transaction->paid_at = now();
+                    } elseif ($transactionStatus === 'pending') {
+                        $transaction->payment_status = 'pending';
+                    } elseif ($transactionStatus === 'expire') {
+                        $transaction->payment_status = 'expired';
+                    } elseif (
+                        in_array($transactionStatus, [
+                            'deny',
+                            'cancel',
+                            'failure',
+                        ])
+                    ) {
+                        $transaction->payment_status = 'failed';
+                    }
+
+                    $transaction->midtrans_transaction_id =
+                        $status->transaction_id ??
+                        $transaction->midtrans_transaction_id;
+
+                    $transaction->save();
+                } catch (\Throwable $e) {
+                    Log::warning('Gagal memeriksa status Midtrans', [
+                        'order_number' => $transaction->order_number,
+                        'error' => $e->getMessage(),
+                    ]);
+                }
+            }
         }
 
         return response()->json(
