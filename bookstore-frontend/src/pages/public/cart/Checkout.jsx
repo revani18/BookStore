@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "../../../context/useCart";
-import { API } from "../../../services/api";
+import { API } from "../../../_api";
 
 export default function Checkout() {
   const navigate = useNavigate();

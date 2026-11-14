@@ -1,8 +1,7 @@
-
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { API, bookImageStorage } from "../../../services/api";
 import { useCart } from "../../../context/useCart";
+import { API, bookImageStorage } from "../../../_api";
 
 export default function BookDetail() {
   const { id } = useParams();
@@ -43,9 +42,7 @@ export default function BookDetail() {
     if (!image) return null;
     if (image.startsWith("http")) return image;
 
-    const path = image.startsWith("books/")
-      ? image.slice(6)
-      : image;
+    const path = image.startsWith("books/") ? image.slice(6) : image;
 
     return `${bookImageStorage}/${path}`;
   };
@@ -56,9 +53,7 @@ export default function BookDetail() {
         <div className="spinner-border text-primary" role="status">
           <span className="visually-hidden">Memuat...</span>
         </div>
-        <p className="text-body-secondary mt-3">
-          Memuat detail buku...
-        </p>
+        <p className="text-body-secondary mt-3">Memuat detail buku...</p>
       </div>
     );
   }
@@ -66,9 +61,7 @@ export default function BookDetail() {
   if (error || !book) {
     return (
       <div className="container py-5 text-center">
-        <p className="text-danger">
-          {error || "Buku tidak ditemukan."}
-        </p>
+        <p className="text-danger">{error || "Buku tidak ditemukan."}</p>
 
         <Link to="/books" className="btn btn-outline-primary mt-3">
           Kembali ke Katalog
@@ -80,37 +73,31 @@ export default function BookDetail() {
   const title = book.title ?? book.judul ?? "Tanpa Judul";
   const image = getImageUrl(book.cover_image);
 
-  const author =
-    book.author?.name ??
-    book.author?.author_name ??
-    "-";
+  const author = book.author?.name ?? book.author?.author_name ?? "-";
 
-  const genre =
-    book.genre?.name ??
-    book.genre?.genre_name ??
-    "-";
+  const genre = book.genre?.name ?? book.genre?.genre_name ?? "-";
 
-  const year =
-    book.publication_year ??
-    book.year ??
-    "-";
+  const year = book.publication_year ?? book.year ?? "-";
 
   const isbn = book.isbn ?? "-";
   const stock = Number(book.stock ?? 0);
 
-  const cartItem = cart.find(
-    (item) => String(item.id) === String(book.id)
-  );
+  const cartItem = cart.find((item) => String(item.id) === String(book.id));
 
   const alreadyInCart = Number(cartItem?.quantity ?? 0);
 
-  const handleBuy = () => {
-    const added = addToCart(book);
+  const handleBuy = async () => {
+    const token = localStorage.getItem("accessToken");
+
+    // Hentikan proses jika belum login
+    if (!token) {
+      return;
+    }
+
+    const added = await addToCart(book);
 
     if (added) {
       window.alert(`Buku "${title}" ditambahkan ke keranjang!`);
-    } else {
-      window.alert("Stok buku tidak mencukupi.");
     }
   };
 
@@ -118,10 +105,7 @@ export default function BookDetail() {
     <section className="container py-5">
       {/* Navigasi kembali */}
       <div className="mb-4">
-        <Link
-          to="/books"
-          className="text-decoration-none"
-        >
+        <Link to="/books" className="text-decoration-none">
           <i className="fa-solid fa-arrow-left me-2" />
           Kembali ke Katalog
         </Link>
@@ -179,61 +163,35 @@ export default function BookDetail() {
           <hr />
 
           {/* Spesifikasi buku */}
-          <h5 className="fw-bold mt-4 mb-3">
-            Informasi Buku
-          </h5>
+          <h5 className="fw-bold mt-4 mb-3">Informasi Buku</h5>
 
           <div className="row g-3 py-2">
-            <div className="col-5 text-body-secondary">
-              Kategori
-            </div>
-            <div className="col-7 fw-semibold">
-              {genre}
-            </div>
+            <div className="col-5 text-body-secondary">Kategori</div>
+            <div className="col-7 fw-semibold">{genre}</div>
 
-            <div className="col-5 text-body-secondary">
-              ISBN
-            </div>
-            <div className="col-7 fw-semibold">
-              {isbn}
-            </div>
+            <div className="col-5 text-body-secondary">ISBN</div>
+            <div className="col-7 fw-semibold">{isbn}</div>
 
-            <div className="col-5 text-body-secondary">
-              Tahun Terbit
-            </div>
-            <div className="col-7 fw-semibold">
-              {year}
-            </div>
+            <div className="col-5 text-body-secondary">Tahun Terbit</div>
+            <div className="col-7 fw-semibold">{year}</div>
 
-            <div className="col-5 text-body-secondary">
-              Ketersediaan
-            </div>
+            <div className="col-5 text-body-secondary">Ketersediaan</div>
             <div className="col-7 fw-semibold">
               {stock > 0 ? (
-                <span className="text-success">
-                  Tersedia ({stock} buku)
-                </span>
+                <span className="text-success">Tersedia ({stock} buku)</span>
               ) : (
-                <span className="text-danger">
-                  Stok Habis
-                </span>
+                <span className="text-danger">Stok Habis</span>
               )}
             </div>
 
-            <div className="col-5 text-body-secondary">
-              Di Keranjang
-            </div>
-            <div className="col-7 fw-semibold">
-              {alreadyInCart} buku
-            </div>
+            <div className="col-5 text-body-secondary">Di Keranjang</div>
+            <div className="col-7 fw-semibold">{alreadyInCart} buku</div>
           </div>
 
           <hr />
 
           {/* Deskripsi lengkap */}
-          <h5 className="fw-bold mt-4 mb-3">
-            Deskripsi Buku
-          </h5>
+          <h5 className="fw-bold mt-4 mb-3">Deskripsi Buku</h5>
 
           <p
             className="text-body-secondary"
@@ -243,8 +201,7 @@ export default function BookDetail() {
               textAlign: "justify",
             }}
           >
-            {book.description ||
-              "Belum ada deskripsi untuk buku ini."}
+            {book.description || "Belum ada deskripsi untuk buku ini."}
           </p>
 
           {/* Tombol keranjang */}
@@ -264,10 +221,7 @@ export default function BookDetail() {
                   : "Tambah ke Keranjang"}
             </button>
 
-            <Link
-              to="/cart"
-              className="btn btn-outline-primary btn-lg"
-            >
+            <Link to="/cart" className="btn btn-outline-primary btn-lg">
               <i className="fa-solid fa-cart-shopping me-2" />
               Lihat Keranjang
             </Link>

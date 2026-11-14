@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { API } from "../../../services/api";
+import { API } from "../../../_api";
+
 
 export default function PaymentResult() {
   const [searchParams] = useSearchParams();

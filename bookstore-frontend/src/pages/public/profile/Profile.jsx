@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { Navigate, Link } from "react-router-dom";
-import { API, profileImageStorage } from "../../../services/api";
+import { API, profileImageStorage } from "../../../_api";
 
 export default function Profile() {
   const token = localStorage.getItem("accessToken");
 
   const [user, setUser] = useState(
-    JSON.parse(localStorage.getItem("user") || "null")
+    JSON.parse(localStorage.getItem("user") || "null"),
   );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -21,8 +21,7 @@ export default function Profile() {
         localStorage.setItem("user", JSON.stringify(userData));
       } catch (err) {
         setError(
-          err.response?.data?.message ||
-            "Gagal mengambil informasi profil."
+          err.response?.data?.message || "Gagal mengambil informasi profil.",
         );
       } finally {
         setLoading(false);
@@ -56,7 +55,9 @@ export default function Profile() {
   }
 
   const profilePhoto = user?.profile_photo
-    ? `${profileImageStorage}/${user.profile_photo}`
+    ? user.profile_photo.startsWith("http")
+      ? user.profile_photo
+      : `${profileImageStorage}/${user.profile_photo.split("/").pop()}`
     : null;
 
   return (
@@ -84,99 +85,59 @@ export default function Profile() {
                   />
                 )}
 
-                <h3 className="fw-bold">
-                  {user?.name || "Pengguna"}
-                </h3>
+                <h3 className="fw-bold">{user?.name || "Pengguna"}</h3>
               </div>
 
               <hr />
 
-              <h5 className="fw-bold mb-3">
-                Informasi Pengguna
-              </h5>
+              <h5 className="fw-bold mb-3">Informasi Pengguna</h5>
 
               <div className="mb-3">
-                <label className="form-label text-muted">
-                  Nama
-                </label>
-                <p className="fw-semibold">
-                  {user?.name || "-"}
-                </p>
+                <label className="form-label text-muted">Nama</label>
+                <p className="fw-semibold">{user?.name || "-"}</p>
               </div>
 
               <div className="mb-3">
-                <label className="form-label text-muted">
-                  Email
-                </label>
-                <p className="fw-semibold">
-                  {user?.email || "-"}
-                </p>
+                <label className="form-label text-muted">Email</label>
+                <p className="fw-semibold">{user?.email || "-"}</p>
               </div>
 
               <div className="mb-3">
-                <label className="form-label text-muted">
-                  Nomor Telepon
-                </label>
-                <p className="fw-semibold">
-                  {user?.phone || "-"}
-                </p>
+                <label className="form-label text-muted">Nomor Telepon</label>
+                <p className="fw-semibold">{user?.phone || "-"}</p>
               </div>
 
               <hr />
 
-              <h5 className="fw-bold mb-3">
-                Informasi Alamat
-              </h5>
+              <h5 className="fw-bold mb-3">Informasi Alamat</h5>
 
               <div className="mb-3">
-                <label className="form-label text-muted">
-                  Alamat
-                </label>
-                <p className="fw-semibold">
-                  {user?.address || "-"}
-                </p>
+                <label className="form-label text-muted">Alamat</label>
+                <p className="fw-semibold">{user?.address || "-"}</p>
               </div>
 
               <div className="mb-3">
-                <label className="form-label text-muted">
-                  Kota
-                </label>
-                <p className="fw-semibold">
-                  {user?.city || "-"}
-                </p>
+                <label className="form-label text-muted">Kota</label>
+                <p className="fw-semibold">{user?.city || "-"}</p>
               </div>
 
               <div className="mb-3">
-                <label className="form-label text-muted">
-                  Provinsi
-                </label>
-                <p className="fw-semibold">
-                  {user?.province || "-"}
-                </p>
+                <label className="form-label text-muted">Provinsi</label>
+                <p className="fw-semibold">{user?.province || "-"}</p>
               </div>
 
               <div className="mb-3">
-                <label className="form-label text-muted">
-                  Kode Pos
-                </label>
-                <p className="fw-semibold">
-                  {user?.postal_code || "-"}
-                </p>
+                <label className="form-label text-muted">Kode Pos</label>
+                <p className="fw-semibold">{user?.postal_code || "-"}</p>
               </div>
 
               <div className="d-flex gap-2 mt-4">
-                <Link
-                  to="/profile/edit"
-                  className="btn btn-primary flex-fill"
-                >
+                <Link to="/profile/edit" className="btn btn-primary flex-fill">
                   <i className="fa-solid fa-pen-to-square me-2" />
                   Edit Akun
                 </Link>
 
-                <Link
-                  to="/"
-                  className="btn btn-outline-secondary flex-fill"
-                >
+                <Link to="/" className="btn btn-outline-secondary flex-fill">
                   Kembali
                 </Link>
               </div>

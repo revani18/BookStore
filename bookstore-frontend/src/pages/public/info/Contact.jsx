@@ -21,7 +21,8 @@ export default function Contact() {
                 <div>
                   <h6 className="fw-bold mb-1">BookStore</h6>
                   <p className="text-muted mb-0 small">
-                    Platform toko buku online.
+                    Toko buku online yang menyediakan berbagai pilihan buku
+                    untuk menambah wawasan dan menemani waktu membaca.
                   </p>
                 </div>
               </div>
@@ -30,9 +31,15 @@ export default function Contact() {
                 <i className="fa-solid fa-envelope text-primary fs-5 me-3 mt-1"></i>
                 <div>
                   <h6 className="fw-bold mb-1">Email</h6>
-                  <p className="text-muted mb-0 small">
-                    Informasi email akan segera tersedia.
-                  </p>
+                  <p className="text-muted mb-0 small">booksales@bookstore.id</p>
+                </div>
+              </div>
+
+              <div className="d-flex align-items-start mb-4">
+                <i className="fa-solid fa-phone text-primary fs-5 me-3 mt-1"></i>
+                <div>
+                  <h6 className="fw-bold mb-1">Telepon</h6>
+                  <p className="text-muted mb-0 small">+62 812-3456-7890</p>
                 </div>
               </div>
 
@@ -41,7 +48,7 @@ export default function Contact() {
                 <div>
                   <h6 className="fw-bold mb-1">Alamat</h6>
                   <p className="text-muted mb-0 small">
-                    Informasi alamat akan segera tersedia.
+                    Jl. Literasi No. 10, Jakarta Selatan, Indonesia. 
                   </p>
                 </div>
               </div>

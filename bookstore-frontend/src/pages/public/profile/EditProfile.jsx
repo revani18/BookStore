@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
-import { API, profileImageStorage } from "../../../services/api";
+import { API, profileImageStorage } from "../../../_api";
 
 export default function EditProfile() {
   const navigate = useNavigate();
@@ -40,15 +40,16 @@ export default function EditProfile() {
         });
 
         if (user.profile_photo) {
-          setPreview(`${profileImageStorage}/${user.profile_photo}`);
+          const photoUrl = user.profile_photo.startsWith("http")
+            ? user.profile_photo
+            : `${profileImageStorage}/${user.profile_photo.split("/").pop()}`;
+
+          setPreview(photoUrl);
         }
 
         localStorage.setItem("user", JSON.stringify(user));
       } catch (err) {
-        setError(
-          err.response?.data?.message ||
-            "Gagal mengambil data profil."
-        );
+        setError(err.response?.data?.message || "Gagal mengambil data profil.");
       } finally {
         setLoading(false);
       }
@@ -73,11 +74,7 @@ export default function EditProfile() {
 
     if (!file) return;
 
-    const allowedTypes = [
-      "image/jpeg",
-      "image/png",
-      "image/webp",
-    ];
+    const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
 
     if (!allowedTypes.includes(file.type)) {
       setError("Format foto harus JPG, PNG, atau WEBP.");
@@ -118,10 +115,7 @@ export default function EditProfile() {
 
       const response = await API.post("/profile", data);
 
-      localStorage.setItem(
-        "user",
-        JSON.stringify(response.data.user)
-      );
+      localStorage.setItem("user", JSON.stringify(response.data.user));
 
       setSuccess("Profil berhasil diperbarui.");
 
@@ -134,10 +128,7 @@ export default function EditProfile() {
       if (validationErrors) {
         setError(Object.values(validationErrors).flat().join(" "));
       } else {
-        setError(
-          err.response?.data?.message ||
-            "Gagal memperbarui profil."
-        );
+        setError(err.response?.data?.message || "Gagal memperbarui profil.");
       }
     } finally {
       setSaving(false);
@@ -206,22 +197,12 @@ export default function EditProfile() {
 
               <hr />
 
-              {error && (
-                <div className="alert alert-danger">
-                  {error}
-                </div>
-              )}
+              {error && <div className="alert alert-danger">{error}</div>}
 
-              {success && (
-                <div className="alert alert-success">
-                  {success}
-                </div>
-              )}
+              {success && <div className="alert alert-success">{success}</div>}
 
               <form onSubmit={handleSubmit}>
-                <h5 className="fw-bold mb-3">
-                  Informasi Pengguna
-                </h5>
+                <h5 className="fw-bold mb-3">Informasi Pengguna</h5>
 
                 <div className="mb-3">
                   <label className="form-label">Nama Lengkap</label>
@@ -260,9 +241,7 @@ export default function EditProfile() {
 
                 <hr />
 
-                <h5 className="fw-bold mb-3">
-                  Informasi Alamat
-                </h5>
+                <h5 className="fw-bold mb-3">Informasi Alamat</h5>
 
                 <div className="mb-3">
                   <label className="form-label">Alamat</label>

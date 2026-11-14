@@ -1,14 +1,9 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "../../../context/useCart";
-import { bookImageStorage } from "../../../services/api";
+import { bookImageStorage } from "../../../_api";
 
 export default function Cart() {
-  const {
-    cart,
-    cartTotal,
-    removeFromCart,
-    updateQuantity,
-  } = useCart();
+  const { cart, cartTotal, removeFromCart, updateQuantity } = useCart();
 
   const navigate = useNavigate();
 
@@ -23,9 +18,7 @@ export default function Cart() {
     if (!image) return null;
     if (image.startsWith("http")) return image;
 
-    const path = image.startsWith("books/")
-      ? image.slice(6)
-      : image;
+    const path = image.startsWith("books/") ? image.slice(6) : image;
 
     return `${bookImageStorage}/${path}`;
   };
@@ -37,9 +30,7 @@ export default function Cart() {
       {cart.length === 0 ? (
         <div className="text-center py-5">
           <i className="fa-solid fa-cart-shopping fa-3x text-body-secondary mb-3" />
-          <p className="text-body-secondary">
-            Keranjang kamu masih kosong.
-          </p>
+          <p className="text-body-secondary">Keranjang kamu masih kosong.</p>
           <Link to="/books" className="btn btn-primary">
             Jelajahi Buku
           </Link>
@@ -48,10 +39,7 @@ export default function Cart() {
         <div className="row g-4">
           <div className="col-lg-8">
             {cart.map((item) => (
-              <div
-                className="card mb-3"
-                key={item.cart_item_id}
-              >
+              <div className="card mb-3" key={item.cart_item_id}>
                 <div className="card-body">
                   <div className="row align-items-center g-3">
                     <div className="col-3 col-md-2">
@@ -73,9 +61,7 @@ export default function Cart() {
                     </div>
 
                     <div className="col-9 col-md-5">
-                      <h5 className="fw-bold">
-                        {item.title ?? item.judul}
-                      </h5>
+                      <h5 className="fw-bold">{item.title ?? item.judul}</h5>
 
                       <p className="text-body-secondary mb-1">
                         {item.author?.name ??
@@ -87,9 +73,7 @@ export default function Cart() {
                     </div>
 
                     <div className="col-7 col-md-3">
-                      <label className="form-label small">
-                        Jumlah
-                      </label>
+                      <label className="form-label small">Jumlah</label>
 
                       <input
                         type="number"
@@ -100,7 +84,7 @@ export default function Cart() {
                         onChange={(event) =>
                           updateQuantity(
                             item.cart_item_id,
-                            Number(event.target.value)
+                            Number(event.target.value),
                           )
                         }
                       />
@@ -110,9 +94,13 @@ export default function Cart() {
                       <button
                         type="button"
                         className="btn btn-sm btn-outline-danger"
-                        onClick={() =>
-                          removeFromCart(item.cart_item_id)
-                        }
+                        onClick={async () => {
+                          const bookTitle = item.title ?? item.judul;
+                          await removeFromCart(item.cart_item_id);
+                          window.alert(
+                            `Buku "${bookTitle}" berhasil dihapus dari keranjang.`,
+                          );
+                        }}
                       >
                         <i className="fa-solid fa-trash me-1" />
                         Hapus
@@ -127,9 +115,7 @@ export default function Cart() {
           <div className="col-lg-4">
             <div className="card">
               <div className="card-body">
-                <h5 className="fw-bold mb-3">
-                  Ringkasan Belanja
-                </h5>
+                <h5 className="fw-bold mb-3">Ringkasan Belanja</h5>
 
                 <div className="d-flex justify-content-between mb-3">
                   <span>Total</span>

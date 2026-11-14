@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { API } from "../../../services/api";
+import { API } from "../../../_api";
+
 
 export default function OrderDetail() {
   const { id } = useParams();

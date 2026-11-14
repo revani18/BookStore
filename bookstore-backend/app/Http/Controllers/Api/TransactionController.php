@@ -173,63 +173,65 @@ class TransactionController extends Controller
     }
 
 
+
     public function show(Request $request, Transaction $transaction)
     {
+        // Memastikan customer hanya bisa melihat transaksi miliknya.
         if (
             $request->user()->role === 'customer' &&
-            $transaction->user_id !== $request->user()->id
+            (int) $transaction->user_id !== (int) $request->user()->id
         ) {
             return response()->json([
                 'message' => 'Akses tidak diizinkan.',
             ], 403);
+        }
 
-            // Periksa status terbaru langsung ke Midtrans
-            if (
-                $transaction->payment_status === 'pending' &&
-                $transaction->snap_token
-            ) {
-                try {
-                    $status = \Midtrans\Transaction::status(
-                        $transaction->order_number
-                    );
+        // Periksa status terbaru langsung ke Midtrans.
+        if (
+            $transaction->payment_status === 'pending' &&
+            $transaction->snap_token
+        ) {
+            try {
+                $status = \Midtrans\Transaction::status(
+                    $transaction->order_number
+                );
 
-                    $transactionStatus = $status->transaction_status ?? null;
-                    $fraudStatus = $status->fraud_status ?? null;
+                $transactionStatus = $status->transaction_status ?? null;
+                $fraudStatus = $status->fraud_status ?? null;
 
-                    if (
-                        $transactionStatus === 'settlement' ||
-                        (
-                            $transactionStatus === 'capture' &&
-                            $fraudStatus === 'accept'
-                        )
-                    ) {
-                        $transaction->payment_status = 'paid';
-                        $transaction->paid_at = now();
-                    } elseif ($transactionStatus === 'pending') {
-                        $transaction->payment_status = 'pending';
-                    } elseif ($transactionStatus === 'expire') {
-                        $transaction->payment_status = 'expired';
-                    } elseif (
-                        in_array($transactionStatus, [
-                            'deny',
-                            'cancel',
-                            'failure',
-                        ])
-                    ) {
-                        $transaction->payment_status = 'failed';
-                    }
-
-                    $transaction->midtrans_transaction_id =
-                        $status->transaction_id ??
-                        $transaction->midtrans_transaction_id;
-
-                    $transaction->save();
-                } catch (\Throwable $e) {
-                    Log::warning('Gagal memeriksa status Midtrans', [
-                        'order_number' => $transaction->order_number,
-                        'error' => $e->getMessage(),
-                    ]);
+                if (
+                    $transactionStatus === 'settlement' ||
+                    (
+                        $transactionStatus === 'capture' &&
+                        $fraudStatus === 'accept'
+                    )
+                ) {
+                    $transaction->payment_status = 'paid';
+                    $transaction->paid_at = now();
+                } elseif ($transactionStatus === 'pending') {
+                    $transaction->payment_status = 'pending';
+                } elseif ($transactionStatus === 'expire') {
+                    $transaction->payment_status = 'expired';
+                } elseif (
+                    in_array($transactionStatus, [
+                        'deny',
+                        'cancel',
+                        'failure',
+                    ])
+                ) {
+                    $transaction->payment_status = 'failed';
                 }
+
+                $transaction->midtrans_transaction_id =
+                    $status->transaction_id ??
+                    $transaction->midtrans_transaction_id;
+
+                $transaction->save();
+            } catch (\Throwable $e) {
+                Log::warning('Gagal memeriksa status Midtrans', [
+                    'order_number' => $transaction->order_number,
+                    'error' => $e->getMessage(),
+                ]);
             }
         }
 
@@ -237,6 +239,7 @@ class TransactionController extends Controller
             $transaction->load('items.book', 'user')
         );
     }
+
 
     public function updateStatus(Request $request, Transaction $transaction)
     {

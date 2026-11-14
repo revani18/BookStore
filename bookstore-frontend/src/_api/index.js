@@ -1,4 +1,3 @@
-
 import axios from "axios";
 
 const url =
@@ -8,7 +7,6 @@ export const API = axios.create({
   baseURL: `${url}/api`,
 });
 
-// Mengambil token login dari localStorage
 API.interceptors.request.use((config) => {
   const token = localStorage.getItem("accessToken");
 
@@ -19,7 +17,7 @@ API.interceptors.request.use((config) => {
   return config;
 });
 
-export const bookImageStorage = `${url}/storage/books`;
-
-// URL untuk foto profil
-export const profileImageStorage = `${url}/storage`;
+export const storageUrl = `${url}/storage`;
+export const bookImageStorage = `${storageUrl}/books`;
+export const authorImageStorage = `${storageUrl}/authors`;
+export const profileImageStorage = `${storageUrl}/profile-photos`;

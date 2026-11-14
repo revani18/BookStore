@@ -12,6 +12,7 @@ class UserController extends Controller
         $users = User::where('role', 'customer')
             ->select(
                 'id',
+                'profile_photo',
                 'name',
                 'email',
                 'phone',
@@ -38,6 +39,7 @@ class UserController extends Controller
         return response()->json(
             $user->only([
                 'id',
+                'profile_photo',
                 'name',
                 'email',
                 'phone',

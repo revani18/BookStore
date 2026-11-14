@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use App\Models\Book;
 
 class BookController extends Controller
@@ -11,6 +12,7 @@ class BookController extends Controller
     /**
      * Display a listing of the resource.
      */
+    // Menampilkan semua buku dan fitur pencarian
     public function index(Request $request)
     {
         $query = Book::with(['author', 'genre']);
@@ -36,6 +38,7 @@ class BookController extends Controller
     /**
      * Store a newly created resource in storage.
      */
+    // Menambahkan buku
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -46,8 +49,13 @@ class BookController extends Controller
             'description' => 'nullable|string',
             'price' => 'required|numeric|min:0',
             'stock' => 'required|integer|min:0',
-            'cover_image' => 'nullable|string|max:255',
+            'cover_image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
+
+        if ($request->hasFile('cover_image')) {
+            $validated['cover_image'] = $request->file('cover_image')
+                ->store('books', 'public');
+        }
 
         $book = Book::create($validated);
 
@@ -60,6 +68,7 @@ class BookController extends Controller
     /**
      * Display the specified resource.
      */
+    // Menampilkan detail buku
     public function show(Book $book)
     {
         return response()->json(
@@ -70,6 +79,7 @@ class BookController extends Controller
     /**
      * Update the specified resource in storage.
      */
+    // Memperbarui buku
     public function update(Request $request, Book $book)
     {
         $validated = $request->validate([
@@ -80,8 +90,17 @@ class BookController extends Controller
             'description' => 'nullable|string',
             'price' => 'required|numeric|min:0',
             'stock' => 'required|integer|min:0',
-            'cover_image' => 'nullable|string|max:255',
+            'cover_image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
+
+        if ($request->hasFile('cover_image')) {
+            if ($book->cover_image) {
+                Storage::disk('public')->delete($book->cover_image);
+            }
+
+            $validated['cover_image'] = $request->file('cover_image')
+                ->store('books', 'public');
+        }
 
         $book->update($validated);
 
@@ -94,12 +113,18 @@ class BookController extends Controller
     /**
      * Remove the specified resource from storage.
      */
+    // Menghapus buku
     public function destroy(Book $book)
     {
+        if ($book->cover_image) {
+            Storage::disk('public')->delete($book->cover_image);
+        }
+
         $book->delete();
 
         return response()->json([
             'message' => 'Buku berhasil dihapus.',
         ]);
     }
+
 }

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { API } from "../../services/api";
+import { API } from "../../_api";
+
 
 export default function Login() {
   const navigate = useNavigate();
@@ -36,7 +37,12 @@ export default function Login() {
       API.defaults.headers.common.Authorization = `Bearer ${token}`;
 
       alert("Login berhasil!");
-      navigate("/");
+
+      if (user.role === "admin") {
+        navigate("/admin/dashboard", { replace: true });
+      } else {
+        navigate("/", { replace: true });
+      }
     } catch (err) {
       setError(
         err.response?.data?.message ||
@@ -116,7 +122,10 @@ export default function Login() {
                 <span className="text-muted">
                   Belum punya akun?{" "}
                 </span>
-                <Link to="/register" className="text-decoration-none">
+                <Link
+                  to="/register"
+                  className="text-decoration-none"
+                >
                   Daftar sekarang
                 </Link>
               </div>

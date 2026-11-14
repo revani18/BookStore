@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { API, bookImageStorage } from "../services/api";
 import styles from "../styles/ProductList.module.css";
 import { useCart } from "../context/useCart";
+import { API, bookImageStorage } from "../_api";
 
 export default function ProductList({ showFilters = false }) {
   const [booksList, setBooksList] = useState([]);
@@ -53,9 +53,7 @@ export default function ProductList({ showFilters = false }) {
     if (!image) return null;
     if (image.startsWith("http")) return image;
 
-    const path = image.startsWith("books/")
-      ? image.slice(6)
-      : image;
+    const path = image.startsWith("books/") ? image.slice(6) : image;
 
     return `${bookImageStorage}/${path}`;
   };
@@ -70,15 +68,13 @@ export default function ProductList({ showFilters = false }) {
     );
   });
 
-  const handleBuy = (book) => {
-    const added = addToCart(book);
+  const handleBuy = async (book) => {
+    const added = await addToCart(book);
 
     if (added) {
       window.alert(
-        `Buku "${book.title ?? book.judul}" berhasil ditambahkan ke keranjang!`
+        `Buku "${book.title ?? book.judul}" berhasil ditambahkan ke keranjang!`,
       );
-    } else {
-      window.alert("Stok buku tidak mencukupi.");
     }
   };
 
@@ -92,8 +88,8 @@ export default function ProductList({ showFilters = false }) {
             <p className="lead text-body-secondary">
               Temukan berbagai pilihan buku yang telah kami pilih untuk memenuhi
               kebutuhan setiap pembaca. Mulai dari cerita yang menginspirasi,
-              petualangan yang menarik, hingga buku yang menambah pengetahuan dan
-              pengembangan diri. BookStore membantu kamu menemukan buku yang
+              petualangan yang menarik, hingga buku yang menambah pengetahuan
+              dan pengembangan diri. BookStore membantu kamu menemukan buku yang
               sesuai dengan minat dan kebutuhanmu.
             </p>
 
@@ -120,10 +116,7 @@ export default function ProductList({ showFilters = false }) {
                     <option value="">Semua Kategori</option>
 
                     {categories.map((category) => (
-                      <option
-                        key={category.id}
-                        value={String(category.id)}
-                      >
+                      <option key={category.id} value={String(category.id)}>
                         {category.name ?? category.genre_name}
                       </option>
                     ))}
@@ -160,11 +153,8 @@ export default function ProductList({ showFilters = false }) {
               {filteredBooks.map((book) => {
                 const title = book.title ?? book.judul ?? "Tanpa Judul";
                 const author =
-                  book.author?.name ??
-                  book.author?.author_name ??
-                  "Penulis";
-                const year =
-                  book.publication_year ?? book.year ?? "-";
+                  book.author?.name ?? book.author?.author_name ?? "Penulis";
+                const year = book.publication_year ?? book.year ?? "-";
                 const image = getImageUrl(book.cover_image);
                 const stock = Number(book.stock ?? 0);
 
@@ -180,7 +170,7 @@ export default function ProductList({ showFilters = false }) {
                             loading="lazy"
                             onError={(event) => {
                               event.currentTarget.classList.add(
-                                styles.bookCoverUnavailable
+                                styles.bookCoverUnavailable,
                               );
                             }}
                           />
@@ -296,9 +286,7 @@ export default function ProductList({ showFilters = false }) {
               {getImageUrl(selectedBook.cover_image) ? (
                 <img
                   src={getImageUrl(selectedBook.cover_image)}
-                  alt={`Sampul ${
-                    selectedBook.title ?? selectedBook.judul
-                  }`}
+                  alt={`Sampul ${selectedBook.title ?? selectedBook.judul}`}
                 />
               ) : (
                 <div className={styles.bookCoverFallback}>
@@ -307,9 +295,7 @@ export default function ProductList({ showFilters = false }) {
               )}
 
               <div>
-                <p className="text-primary fw-semibold mb-2">
-                  DETAIL BUKU
-                </p>
+                <p className="text-primary fw-semibold mb-2">DETAIL BUKU</p>
 
                 <h2 id="book-modal-title">
                   {selectedBook.title ?? selectedBook.judul}
@@ -324,9 +310,7 @@ export default function ProductList({ showFilters = false }) {
 
                 <p className="text-body-secondary">
                   Tahun terbit:{" "}
-                  {selectedBook.publication_year ??
-                    selectedBook.year ??
-                    "-"}
+                  {selectedBook.publication_year ?? selectedBook.year ?? "-"}
                 </p>
 
                 <p>

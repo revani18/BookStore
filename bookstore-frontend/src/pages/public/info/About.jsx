@@ -1,4 +1,3 @@
-
 export default function About() {
   return (
     <div className="container my-5">

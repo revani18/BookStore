@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { API } from "../../../services/api";
+import { API } from "../../../_api";
+
 
 export default function Orders() {
   const [orders, setOrders] = useState([]);
