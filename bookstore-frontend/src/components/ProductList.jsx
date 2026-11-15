@@ -13,7 +13,7 @@ export default function ProductList({ showFilters = false }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const { totalItems, addToCart } = useCart();
+  const { totalItems, addToCart, cart } = useCart();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -77,6 +77,20 @@ export default function ProductList({ showFilters = false }) {
       );
     }
   };
+
+  const selectedBookCartItem = selectedBook
+    ? cart.find(
+        (item) =>
+          String(item.book_id ?? item.id) === String(selectedBook.id),
+      )
+    : null;
+  const selectedBookInCart = Number(selectedBookCartItem?.quantity ?? 0);
+  const selectedBookStock = Number(selectedBook?.stock ?? 0);
+  const selectedBookTitle =
+    selectedBook?.title ?? selectedBook?.judul ?? "Tanpa Judul";
+  const selectedBookImage = selectedBook
+    ? getImageUrl(selectedBook.cover_image)
+    : null;
 
   return (
     <>
@@ -154,7 +168,6 @@ export default function ProductList({ showFilters = false }) {
                 const title = book.title ?? book.judul ?? "Tanpa Judul";
                 const author =
                   book.author?.name ?? book.author?.author_name ?? "Penulis";
-                const year = book.publication_year ?? book.year ?? "-";
                 const image = getImageUrl(book.cover_image);
                 const stock = Number(book.stock ?? 0);
 
@@ -189,10 +202,6 @@ export default function ProductList({ showFilters = false }) {
                         <small className="text-body-secondary">
                           Penulis: {author}
                         </small>
-
-                        <p className="text-body-secondary small mb-1">
-                          Tahun: {year}
-                        </p>
 
                         <p
                           className={`card-text mt-2 ${styles.bookDescription}`}
@@ -283,72 +292,104 @@ export default function ProductList({ showFilters = false }) {
             </button>
 
             <div className={styles.modalContent}>
-              {getImageUrl(selectedBook.cover_image) ? (
-                <img
-                  src={getImageUrl(selectedBook.cover_image)}
-                  alt={`Sampul ${selectedBook.title ?? selectedBook.judul}`}
-                />
-              ) : (
-                <div className={styles.bookCoverFallback}>
-                  {selectedBook.title ?? selectedBook.judul}
-                </div>
-              )}
+              <div className={styles.modalImageWrap}>
+                {selectedBookImage ? (
+                  <img
+                    src={selectedBookImage}
+                    alt={`Sampul ${selectedBookTitle}`}
+                  />
+                ) : (
+                  <div className={styles.modalCoverFallback}>
+                    {selectedBookTitle}
+                  </div>
+                )}
+              </div>
 
-              <div>
-                <p className="text-primary fw-semibold mb-2">DETAIL BUKU</p>
+              <div className={styles.modalDetails}>
+                <p className="text-primary fw-semibold text-uppercase small mb-2">
+                  Detail Koleksi Buku
+                </p>
 
-                <h2 id="book-modal-title">
-                  {selectedBook.title ?? selectedBook.judul}
+                <h2 id="book-modal-title" className="fw-bold mb-3">
+                  {selectedBookTitle}
                 </h2>
 
                 <p className="text-body-secondary mb-1">
+                  <i className="fa-solid fa-user-pen me-2" aria-hidden="true" />
                   Penulis:{" "}
                   {selectedBook.author?.name ??
                     selectedBook.author?.author_name ??
                     "-"}
                 </p>
 
-                <p className="text-body-secondary">
-                  Tahun terbit:{" "}
-                  {selectedBook.publication_year ?? selectedBook.year ?? "-"}
+                <p className="fs-4 fw-bold text-primary my-3">
+                  {formatPrice(selectedBook.price)}
                 </p>
 
-                <p>
+                <hr />
+
+                <h3 className="h5 fw-bold mt-4 mb-3">Informasi Buku</h3>
+                <div className={styles.bookMetadata}>
+                  <span className="text-body-secondary">Kategori</span>
+                  <strong>
+                    {selectedBook.genre?.name ??
+                      selectedBook.genre?.genre_name ??
+                      "-"}
+                  </strong>
+
+                  <span className="text-body-secondary">ISBN</span>
+                  <strong>{selectedBook.isbn ?? "-"}</strong>
+
+                  <span className="text-body-secondary">Ketersediaan</span>
+                  <strong>
+                    {selectedBookStock > 0 ? (
+                      <span className="text-success">
+                        Tersedia ({selectedBookStock} buku)
+                      </span>
+                    ) : (
+                      <span className="text-danger">Stok Habis</span>
+                    )}
+                  </strong>
+
+                  <span className="text-body-secondary">Di Keranjang</span>
+                  <strong>{selectedBookInCart} buku</strong>
+                </div>
+
+                <hr />
+
+                <h3 className="h5 fw-bold mt-4 mb-3">Deskripsi Buku</h3>
+                <p className={styles.modalDescription}>
                   {selectedBook.description ||
                     "Belum ada deskripsi untuk buku ini."}
                 </p>
 
-                <p className="fs-5 fw-bold">
-                  {formatPrice(selectedBook.price)}
-                </p>
-
-                <p className="text-body-secondary">
-                  Stok: {selectedBook.stock ?? 0}
-                </p>
-
                 <div className="d-flex gap-2 flex-wrap">
-                  <Link
-                    to={`/books/${selectedBook.id}`}
-                    className="btn btn-outline-primary"
-                  >
-                    Detail Buku
-                  </Link>
-
                   <button
                     type="button"
                     className="btn btn-primary"
-                    disabled={Number(selectedBook.stock ?? 0) <= 0}
+                    disabled={selectedBookStock <= selectedBookInCart}
                     onClick={() => {
                       handleBuy(selectedBook);
-                      setSelectedBook(null);
                     }}
                   >
                     <i
                       className="fa-solid fa-cart-plus me-2"
                       aria-hidden="true"
                     />
-                    Tambah ke Keranjang
+                    {selectedBookStock <= 0
+                      ? "Stok Habis"
+                      : selectedBookStock <= selectedBookInCart
+                        ? "Stok Sudah Maksimal"
+                        : "Tambah ke Keranjang"}
                   </button>
+
+                  <Link to="/cart" className="btn btn-outline-primary">
+                    <i
+                      className="fa-solid fa-cart-shopping me-2"
+                      aria-hidden="true"
+                    />
+                    Lihat Keranjang
+                  </Link>
                 </div>
               </div>
             </div>

@@ -7,7 +7,7 @@ export default function PublicLayout() {
     <div className="d-flex flex-column min-vh-100 bg-light">
       <Navbar />
 
-      <main className="flex-grow-1">
+      <main className="grow">
         <Outlet />
       </main>
 

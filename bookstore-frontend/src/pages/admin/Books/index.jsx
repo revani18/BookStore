@@ -88,7 +88,7 @@ export default function AdminBooks() {
         <button
           type="button"
           onClick={() => navigate("/admin/books/create")}
-          className="!inline-flex !items-center !gap-2 !rounded-full !border-0 !bg-blue-600 !px-6 !py-3 !text-sm !font-semibold !text-white !shadow-none transition-all hover:!bg-blue-700 hover:!shadow-md active:scale-95"
+          className="inline-flex! items-center! gap-2! rounded-full! border-0! bg-blue-600! px-6! py-3! text-sm! font-semibold! text-white! shadow-none! transition-all hover:bg-blue-700! hover:shadow-md! active:scale-95"
         >
           <i className="fa-solid fa-plus" />
           Tambah Buku
@@ -201,7 +201,7 @@ export default function AdminBooks() {
                         type="button"
                         onClick={() => navigate(`/admin/books/${book.id}/edit`)}
                         title="Edit buku"
-                        className="!border-0 !bg-transparent !p-0 !text-blue-600 !shadow-none transition hover:!text-blue-800"
+                        className="border-0! bg-transparent! p-0! text-blue-600! shadow-none! transition hover:text-blue-800!"
                       >
                         <i className="fa-solid fa-pen-to-square text-lg" />
                       </button>
@@ -210,7 +210,7 @@ export default function AdminBooks() {
                         type="button"
                         onClick={() => handleDelete(book)}
                         title="Hapus buku"
-                        className="!border-0 !bg-transparent !p-0 !text-red-500 !shadow-none transition hover:!text-red-700"
+                        className="border-0! bg-transparent! p-0! text-red-500! shadow-none! transition hover:text-red-700!"
                       >
                         <i className="fa-solid fa-trash text-lg" />
                       </button>

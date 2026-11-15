@@ -29,3 +29,8 @@ export const getTransaction = async (id) => {
 export const updateTransactionStatus = async (id, data) => {
   return await API.patch(`/transactions/${id}/status`, data);
 };
+
+// Mengonfirmasi pembayaran transaksi (admin)
+export const confirmTransactionPayment = async (id) => {
+  return await API.patch(`/transactions/${id}/payment-status`);
+};

@@ -27,6 +27,11 @@ const secondMenus = [
     path: "/admin/transactions",
     icon: "fa-solid fa-bag-shopping",
   },
+  {
+    label: "Pesan Masuk",
+    path: "/admin/contact-messages",
+    icon: "fa-solid fa-envelope",
+  },
 ];
 
 function MenuItems({ items }) {
@@ -43,7 +48,7 @@ function MenuItems({ items }) {
         }
         style={{ textDecoration: "none" }}
       >
-        <i className={`${item.icon} w-6 h-6 flex-shrink-0 text-gray-500`} />
+        <i className={`${item.icon} w-6 h-6 shrink-0 text-gray-500`} />
         <span className="ml-3">{item.label}</span>
       </NavLink>
     </li>

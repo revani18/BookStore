@@ -1,4 +1,56 @@
+import { useState } from "react";
+import { createContactMessage } from "../../../_services/contactMessages";
+
+const emptyForm = {
+  name: "",
+  email: "",
+  subject: "",
+  message: "",
+};
+
 export default function Contact() {
+  const [formData, setFormData] = useState(emptyForm);
+  const [submitting, setSubmitting] = useState(false);
+  const [notice, setNotice] = useState(null);
+
+  const handleChange = (event) => {
+    setFormData({
+      ...formData,
+      [event.target.name]: event.target.value,
+    });
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    setNotice(null);
+    setSubmitting(true);
+
+    try {
+      await createContactMessage(formData);
+      setFormData(emptyForm);
+      setNotice({
+        type: "success",
+        text: "Pesan berhasil dikirim. Terima kasih telah menghubungi BookStore!",
+      });
+    } catch (error) {
+      console.error(error);
+      const validationErrors = error.response?.data?.errors;
+      const firstValidationError = validationErrors
+        ? Object.values(validationErrors).flat()[0]
+        : null;
+
+      setNotice({
+        type: "danger",
+        text:
+          firstValidationError ||
+          error.response?.data?.message ||
+          "Pesan gagal dikirim. Silakan coba kembali.",
+      });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   return (
     <div className="container my-5">
       {/* Judul Halaman */}
@@ -62,19 +114,22 @@ export default function Contact() {
             <div className="card-body p-4">
               <h5 className="fw-bold mb-3">Kirim Pesan</h5>
 
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  alert("Terima kasih telah menghubungi BookStore!");
-                  e.target.reset();
-                }}
-              >
+              {notice && (
+                <div className={`alert alert-${notice.type}`} role="alert">
+                  {notice.text}
+                </div>
+              )}
+
+              <form onSubmit={handleSubmit}>
                 <div className="mb-3">
                   <label className="form-label">Nama</label>
                   <input
                     type="text"
+                    name="name"
                     className="form-control"
                     placeholder="Masukkan nama kamu"
+                    value={formData.name}
+                    onChange={handleChange}
                     required
                   />
                 </div>
@@ -83,8 +138,11 @@ export default function Contact() {
                   <label className="form-label">Email</label>
                   <input
                     type="email"
+                    name="email"
                     className="form-control"
                     placeholder="Masukkan email kamu"
+                    value={formData.email}
+                    onChange={handleChange}
                     required
                   />
                 </div>
@@ -93,8 +151,11 @@ export default function Contact() {
                   <label className="form-label">Subjek</label>
                   <input
                     type="text"
+                    name="subject"
                     className="form-control"
                     placeholder="Masukkan subjek pesan"
+                    value={formData.subject}
+                    onChange={handleChange}
                     required
                   />
                 </div>
@@ -102,16 +163,25 @@ export default function Contact() {
                 <div className="mb-3">
                   <label className="form-label">Pesan</label>
                   <textarea
+                    name="message"
                     className="form-control"
                     rows="5"
                     placeholder="Tuliskan pesan kamu"
+                    value={formData.message}
+                    onChange={handleChange}
                     required
-                  ></textarea>
+                  />
                 </div>
 
-                <button type="submit" className="btn btn-primary">
-                  <i className="fa-solid fa-paper-plane me-2"></i>
-                  Kirim Pesan
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                  disabled={submitting}
+                >
+                  <i
+                    className={`fa-solid ${submitting ? "fa-spinner fa-spin" : "fa-paper-plane"} me-2`}
+                  />
+                  {submitting ? "Mengirim..." : "Kirim Pesan"}
                 </button>
               </form>
             </div>

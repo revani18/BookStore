@@ -254,4 +254,34 @@ class TransactionController extends Controller
             'data' => $transaction,
         ]);
     }
+
+    public function confirmPayment(Transaction $transaction)
+    {
+        $transaction = DB::transaction(function () use ($transaction) {
+            $transaction = Transaction::whereKey($transaction->id)
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            if ($transaction->payment_status !== 'pending') {
+                return null;
+            }
+
+            $transaction->payment_status = 'paid';
+            $transaction->paid_at = now();
+            $transaction->save();
+
+            return $transaction;
+        });
+
+        if (!$transaction) {
+            return response()->json([
+                'message' => 'Pembayaran hanya dapat dikonfirmasi saat berstatus menunggu pembayaran.',
+            ], 409);
+        }
+
+        return response()->json([
+            'message' => 'Pembayaran berhasil dikonfirmasi.',
+            'data' => $transaction,
+        ]);
+    }
 }

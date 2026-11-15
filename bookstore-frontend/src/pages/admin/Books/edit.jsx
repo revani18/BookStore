@@ -330,7 +330,7 @@ export default function EditBook() {
             <button
               type="button"
               onClick={() => navigate("/admin/books")}
-              className="!rounded-full !border !border-gray-300 !bg-white !px-6 !py-3 !text-sm !font-semibold !text-gray-600 !shadow-none transition hover:!bg-gray-50 active:scale-95"
+              className="rounded-full! border! border-gray-300! bg-white! px-6! py-3! text-sm! font-semibold! text-gray-600! shadow-none! transition hover:bg-gray-50! active:scale-95"
             >
               Batal
             </button>
@@ -338,7 +338,7 @@ export default function EditBook() {
             <button
               type="submit"
               disabled={saving}
-              className="!inline-flex !items-center !gap-2 !rounded-full !border-0 !bg-blue-600 !px-6 !py-3 !text-sm !font-semibold !text-white !shadow-none transition-all hover:!bg-blue-700 hover:!shadow-md active:scale-95 disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex! items-center! gap-2! rounded-full! border-0! bg-blue-600! px-6! py-3! text-sm! font-semibold! text-white! shadow-none! transition-all hover:bg-blue-700! hover:shadow-md! active:scale-95 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {saving ? (
                 <>

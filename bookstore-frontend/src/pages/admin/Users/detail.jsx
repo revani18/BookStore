@@ -172,7 +172,7 @@ export default function UserDetail() {
           <button
             type="button"
             onClick={() => navigate("/admin/users")}
-            className="!rounded-full !border !border-gray-300 !bg-white !px-6 !py-3 !text-sm !font-semibold !text-gray-600 !shadow-none transition hover:!bg-gray-50 active:scale-95"
+            className="rounded-full! border! border-gray-300! bg-white! px-6! py-3! text-sm! font-semibold! text-gray-600! shadow-none! transition hover:bg-gray-50! active:scale-95"
           >
             Kembali
           </button>

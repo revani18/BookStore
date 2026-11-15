@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback } from "react";
 import { CartContext } from "./cart-context";
 import { API } from "../_api";
 
-
 export function CartProvider({ children }) {
   const [cart, setCart] = useState([]);
 

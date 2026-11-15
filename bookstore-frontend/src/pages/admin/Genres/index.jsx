@@ -1,9 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  getGenres,
-  deleteGenre,
-} from "../../../_services/genres";
+import { getGenres, deleteGenre } from "../../../_services/genres";
 
 let cachedGenres = null;
 
@@ -88,7 +85,7 @@ export default function AdminGenres() {
         <button
           type="button"
           onClick={() => navigate("/admin/genres/create")}
-          className="!inline-flex !items-center !gap-2 !rounded-full !border-0 !bg-blue-600 !px-6 !py-3 !text-sm !font-semibold !text-white !shadow-none transition-all hover:!bg-blue-700 hover:!shadow-md active:scale-95"
+          className="inline-flex! items-center! gap-2! rounded-full! border-0! bg-blue-600! px-6! py-3! text-sm! font-semibold! text-white! shadow-none! transition-all hover:bg-blue-700! hover:shadow-md! active:scale-95"
         >
           <i className="fa-solid fa-plus" />
           Tambah Genre
@@ -185,7 +182,7 @@ export default function AdminGenres() {
                           navigate(`/admin/genres/${genre.id}/edit`)
                         }
                         title="Edit genre"
-                        className="!border-0 !bg-transparent !p-0 !text-blue-600 !shadow-none transition hover:!text-blue-800"
+                        className="border-0! bg-transparent! p-0! text-blue-600! shadow-none! transition hover:text-blue-800!"
                       >
                         <i className="fa-solid fa-pen-to-square text-lg" />
                       </button>
@@ -194,7 +191,7 @@ export default function AdminGenres() {
                         type="button"
                         onClick={() => handleDelete(genre)}
                         title="Hapus genre"
-                        className="!border-0 !bg-transparent !p-0 !text-red-500 !shadow-none transition hover:!text-red-700"
+                        className="border-0! bg-transparent! p-0! text-red-500! shadow-none! transition hover:text-red-700!"
                       >
                         <i className="fa-solid fa-trash text-lg" />
                       </button>

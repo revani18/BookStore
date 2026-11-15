@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getTransactions } from "../../../_services/transaction";
+import {confirmTransactionPayment, getTransactions } from "../../../_services/transaction";
 
 
 let cachedTransactions = null;
@@ -13,6 +13,7 @@ export default function AdminTransactions() {
   );
   const [loading, setLoading] = useState(!cachedTransactions);
   const [search, setSearch] = useState("");
+  const [confirmingId, setConfirmingId] = useState(null);
 
   const fetchTransactions = useCallback(async () => {
     try {
@@ -56,6 +57,37 @@ export default function AdminTransactions() {
       month: "short",
       year: "numeric",
     });
+  };
+
+  const handleConfirmPayment = async (transaction) => {
+    const confirmed = window.confirm(
+      `Konfirmasi pembayaran untuk pesanan ${transaction.order_number}?`,
+    );
+
+    if (!confirmed) return;
+
+    try {
+      setConfirmingId(transaction.id);
+
+      const response = await confirmTransactionPayment(transaction.id);
+      const updatedTransaction = response.data.data;
+      const updatedTransactions = transactions.map((item) =>
+        item.id === updatedTransaction.id
+          ? { ...item, ...updatedTransaction, user: item.user }
+          : item,
+      );
+
+      setTransactions(updatedTransactions);
+      alert("Pembayaran berhasil dikonfirmasi.");
+    } catch (error) {
+      console.error(error);
+      alert(
+        error.response?.data?.message ||
+          "Gagal mengonfirmasi pembayaran. Silakan coba kembali.",
+      );
+    } finally {
+      setConfirmingId(null);
+    }
   };
 
   const orderStatusLabel = {
@@ -216,14 +248,34 @@ export default function AdminTransactions() {
 
                   {/* Aksi */}
                   <td className="px-5 py-3">
-                    <div className="flex items-center justify-center">
+                    <div className="flex items-center justify-center gap-3">
+                      {transaction.payment_status === "pending" && (
+                        <button
+                          type="button"
+                          onClick={() => handleConfirmPayment(transaction)}
+                          disabled={confirmingId === transaction.id}
+                          title="Konfirmasi pembayaran"
+                          className="inline-flex! items-center! gap-1! border-0! bg-transparent! p-0! text-xs! font-medium! text-green-600! shadow-none! transition hover:text-green-800! disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                          {confirmingId === transaction.id ? (
+                            <i className="fa-solid fa-spinner fa-spin text-lg" />
+                          ) : (
+                            <i className="fa-solid fa-circle-check text-lg" />
+                          )}
+                          <span>
+                            {confirmingId === transaction.id
+                              ? "Mengonfirmasi..."
+                              : "Konfirmasi"}
+                          </span>
+                        </button>
+                      )}
                       <button
                         type="button"
                         onClick={() =>
                           navigate(`/admin/transactions/${transaction.id}`)
                         }
                         title="Lihat detail transaksi"
-                        className="!border-0 !bg-transparent !p-0 !text-blue-600 !shadow-none transition hover:!text-blue-800"
+                        className="border-0! bg-transparent! p-0! text-blue-600! shadow-none! transition hover:text-blue-800!"
                       >
                         <i className="fa-solid fa-eye text-lg" />
                       </button>

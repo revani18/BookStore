@@ -172,7 +172,7 @@ export default function AdminUsers() {
                           navigate(`/admin/users/${user.id}`)
                         }
                         title="Lihat detail pelanggan"
-                        className="!border-0 !bg-transparent !p-0 !text-blue-600 !shadow-none transition hover:!text-blue-800"
+                        className="border-0! bg-transparent! p-0! text-blue-600! shadow-none! transition hover:text-blue-800!"
                       >
                         <i className="fa-solid fa-eye text-lg" />
                       </button>

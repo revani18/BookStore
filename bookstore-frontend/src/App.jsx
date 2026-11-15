@@ -10,7 +10,6 @@ import ProtectedRoute from "./components/ProtectedRoute";
 // Public Pages
 import Home from "./pages/public/Home";
 import Books from "./pages/public/books/Books";
-import BookDetail from "./pages/public/books/BookDetail";
 import About from "./pages/public/info/About";
 import Contact from "./pages/public/info/Contact";
 import Cart from "./pages/public/cart/Cart";
@@ -40,6 +39,8 @@ import AdminUsers from "./pages/admin/Users";
 import UserDetail from "./pages/admin/Users/detail";
 import AdminTransactions from "./pages/admin/Transactions";
 import TransactionDetail from "./pages/admin/Transactions/detail";
+import AdminContactMessages from "./pages/admin/ContactMessages";
+import ContactMessageDetail from "./pages/admin/ContactMessages/detail";
 
 export default function App() {
   return (
@@ -50,7 +51,7 @@ export default function App() {
           <Route element={<PublicLayout />}>
             <Route path="/" element={<Home />} />
             <Route path="/books" element={<Books />} />
-            <Route path="/books/:id" element={<BookDetail />} />
+            <Route path="/books/:id" element={<Navigate to="/books" replace />} />
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/profile" element={<Profile />} />
@@ -91,6 +92,9 @@ export default function App() {
 
               <Route path="transactions" element={<AdminTransactions />} />
               <Route path="transactions/:id" element={<TransactionDetail />} />
+
+              <Route path="contact-messages" element={<AdminContactMessages />} />
+              <Route path="contact-messages/:id" element={<ContactMessageDetail />} />
             </Route>
           </Route>
         </Routes>

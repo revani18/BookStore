@@ -9,10 +9,12 @@ use App\Http\Controllers\Api\CartController;
 use App\Http\Controllers\Api\TransactionController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\MidtransNotificationController;
+use App\Http\Controllers\Api\ContactMessageController;
 
 // API untuk pengunjung
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/contact-messages', [ContactMessageController::class, 'store']);
 
 // Notifikasi pembayaran Midtrans
 Route::post('/midtrans/notification', [MidtransNotificationController::class, 'handle']);
@@ -71,5 +73,10 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/transactions', [TransactionController::class, 'index']);
         Route::get('/transactions/{transaction}', [TransactionController::class, 'show']);
         Route::patch('/transactions/{transaction}/status', [TransactionController::class, 'updateStatus']);
+        Route::patch('/transactions/{transaction}/payment-status', [TransactionController::class, 'confirmPayment']);
+
+        // Kelola pesan kontak
+        Route::get('/contact-messages', [ContactMessageController::class, 'index']);
+        Route::get('/contact-messages/{contactMessage}', [ContactMessageController::class, 'show']);
     });
 });

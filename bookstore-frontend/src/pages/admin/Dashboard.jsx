@@ -12,26 +12,22 @@ export default function Dashboard() {
     {
       title: "Total Buku",
       value: "—",
-      description: "Jumlah buku terdaftar",
-      icon: "▤",
+      description: "Jumlah buku terdaftar"
     },
     {
       title: "Total Genre",
       value: "—",
-      description: "Genre buku",
-      icon: "▧",
+      description: "Genre buku"
     },
     {
       title: "Total Penulis",
       value: "—",
-      description: "Penulis terdaftar",
-      icon: "♙",
+      description: "Penulis terdaftar"
     },
     {
       title: "Total Pelanggan",
       value: "—",
-      description: "Pelanggan terdaftar",
-      icon: "♧",
+      description: "Pelanggan terdaftar"
     },
   ]);
 
@@ -60,25 +56,21 @@ export default function Dashboard() {
             title: "Total Buku",
             value: booksResponse.data.length,
             description: "Jumlah buku terdaftar",
-            icon: "▤",
           },
           {
             title: "Total Genre",
             value: genresResponse.data.length,
             description: "Genre buku",
-            icon: "▧",
           },
           {
             title: "Total Penulis",
             value: authorsResponse.data.length,
             description: "Penulis terdaftar",
-            icon: "♙",
           },
           {
             title: "Total Pelanggan",
             value: usersResponse.data.length,
             description: "Pelanggan terdaftar",
-            icon: "♧",
           },
         ]);
 
@@ -142,7 +134,6 @@ export default function Dashboard() {
         </h1>
         <p className="mt-2 text-sm text-gray-500">
           Selamat datang, {user.name || "Administrator"}.
-          Berikut ringkasan pengelolaan BookStore.
         </p>
       </div>
 
@@ -157,10 +148,6 @@ export default function Dashboard() {
               <p className="text-sm font-medium text-gray-500">
                 {item.title}
               </p>
-
-              <span className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-lg bg-blue-50 text-xl text-blue-600">
-                {item.icon}
-              </span>
             </div>
 
             <h2 className="mt-6 text-2xl font-bold text-gray-900">
