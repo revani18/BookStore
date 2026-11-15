@@ -1,8 +1,8 @@
 import { API } from "../_api";
 
 // Mengambil semua buku
-export const getBooks = async () => {
-  return await API.get("/books");
+export const getBooks = async (params) => {
+  return await API.get("/books", { params });
 };
 
 // Mengambil detail buku

@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { API } from "../../../_api";
 
-
 export default function PaymentResult() {
   const [searchParams] = useSearchParams();
   const transactionId = searchParams.get("transaction_id");
@@ -24,8 +23,8 @@ export default function PaymentResult() {
         setError("");
 
         const response = await API.get(`/my-transactions/${transactionId}`);
-
-        setTransaction(response.data);
+        const result = response.data;
+        setTransaction(result);
       } catch (err) {
         setError(
           err.response?.data?.message || "Gagal mengambil informasi pesanan.",
@@ -83,12 +82,18 @@ export default function PaymentResult() {
 
   if (error) {
     return (
-      <div className="container py-5 text-center">
-        <div className="alert alert-danger">{error}</div>
-        <Link to="/orders" className="btn btn-primary">
-          Lihat Riwayat Pesanan
-        </Link>
-      </div>
+      <section className="container py-5">
+        <div className="card mx-auto" style={{ maxWidth: "650px" }}>
+          <div className="card-body p-4 text-center">
+            <i className="fa-solid fa-circle-exclamation fa-3x text-danger mb-3" />
+            <h2 className="fw-bold">Informasi pembayaran tidak tersedia</h2>
+            <p className="text-body-secondary">{error}</p>
+            <Link to="/orders" className="btn btn-primary">
+              Lihat Riwayat Pesanan
+            </Link>
+          </div>
+        </div>
+      </section>
     );
   }
 

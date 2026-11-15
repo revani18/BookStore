@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import { API, profileImageStorage } from "../../../_api";
+import { useModal } from "../../../context/useModal";
 
 export default function EditProfile() {
   const navigate = useNavigate();
+  const { showModal } = useModal();
   const token = localStorage.getItem("accessToken");
 
   const [formData, setFormData] = useState({
@@ -20,8 +22,6 @@ export default function EditProfile() {
   const [preview, setPreview] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
 
   useEffect(() => {
     const getProfile = async () => {
@@ -49,7 +49,11 @@ export default function EditProfile() {
 
         localStorage.setItem("user", JSON.stringify(user));
       } catch (err) {
-        setError(err.response?.data?.message || "Gagal mengambil data profil.");
+        showModal(
+          err.response?.data?.message || "Gagal mengambil data profil.",
+          "error",
+          { title: "Gagal memuat profil" },
+        );
       } finally {
         setLoading(false);
       }
@@ -58,7 +62,7 @@ export default function EditProfile() {
     if (token) {
       getProfile();
     }
-  }, [token]);
+  }, [showModal, token]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -77,26 +81,27 @@ export default function EditProfile() {
     const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
 
     if (!allowedTypes.includes(file.type)) {
-      setError("Format foto harus JPG, PNG, atau WEBP.");
+      showModal("Format foto harus JPG, PNG, atau WEBP.", "warning", {
+        title: "Format foto tidak didukung",
+      });
       e.target.value = "";
       return;
     }
 
     if (file.size > 2 * 1024 * 1024) {
-      setError("Ukuran foto maksimal 2 MB.");
+      showModal("Ukuran foto maksimal 2 MB.", "warning", {
+        title: "Ukuran foto terlalu besar",
+      });
       e.target.value = "";
       return;
     }
 
-    setError("");
     setPhoto(file);
     setPreview(URL.createObjectURL(file));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
-    setSuccess("");
     setSaving(true);
 
     try {
@@ -117,18 +122,24 @@ export default function EditProfile() {
 
       localStorage.setItem("user", JSON.stringify(response.data.user));
 
-      setSuccess("Profil berhasil diperbarui.");
-
-      setTimeout(() => {
-        navigate("/profile");
-      }, 1000);
+      showModal("Profil berhasil diperbarui.", "success", {
+        title: "Profil diperbarui",
+        icon: "fa-user-check",
+        onOk: () => navigate("/profile"),
+      });
     } catch (err) {
       const validationErrors = err.response?.data?.errors;
 
       if (validationErrors) {
-        setError(Object.values(validationErrors).flat().join(" "));
+        showModal(Object.values(validationErrors).flat().join(" "), "error", {
+          title: "Profil gagal diperbarui",
+        });
       } else {
-        setError(err.response?.data?.message || "Gagal memperbarui profil.");
+        showModal(
+          err.response?.data?.message || "Gagal memperbarui profil.",
+          "error",
+          { title: "Profil gagal diperbarui" },
+        );
       }
     } finally {
       setSaving(false);
@@ -196,10 +207,6 @@ export default function EditProfile() {
               </div>
 
               <hr />
-
-              {error && <div className="alert alert-danger">{error}</div>}
-
-              {success && <div className="alert alert-success">{success}</div>}
 
               <form onSubmit={handleSubmit}>
                 <h5 className="fw-bold mb-3">Informasi Pengguna</h5>

@@ -1,9 +1,11 @@
 import { useState, useEffect, useCallback } from "react";
 import { CartContext } from "./cart-context";
+import { useModal } from "./useModal";
 import { API } from "../_api";
 
 export function CartProvider({ children }) {
   const [cart, setCart] = useState([]);
+  const { showModal, confirmModal } = useModal();
 
   // Mengambil keranjang dari database Laravel
   const refreshCart = useCallback(async () => {
@@ -12,6 +14,20 @@ export function CartProvider({ children }) {
     if (!token) {
       setCart([]);
       return;
+    }
+
+    const userData = localStorage.getItem("user");
+    if (userData) {
+      try {
+        const user = JSON.parse(userData);
+
+        if (user?.role === "admin") {
+          setCart([]);
+          return;
+        }
+      } catch (error) {
+        console.error("Gagal membaca data pengguna:", error);
+      }
     }
 
     try {
@@ -48,14 +64,18 @@ export function CartProvider({ children }) {
     const token = localStorage.getItem("accessToken");
 
     if (!token) {
-      alert("Silakan masuk terlebih dahulu.");
+      showModal("Silakan masuk terlebih dahulu.", "warning", {
+        title: "Silakan masuk",
+      });
       return false;
     }
 
     const bookId = book.id ?? book._id;
 
     if (!bookId) {
-      alert("Data buku tidak valid.");
+      showModal("Data buku tidak valid.", "error", {
+        title: "Buku tidak dapat ditambahkan",
+      });
       return false;
     }
 
@@ -68,7 +88,9 @@ export function CartProvider({ children }) {
       : 0;
 
     if (currentQuantity >= Number(book.stock)) {
-      alert("Stok buku tidak mencukupi.");
+      showModal("Stok buku tidak mencukupi.", "warning", {
+        title: "Stok tidak mencukupi",
+      });
       return false;
     }
 
@@ -82,9 +104,11 @@ export function CartProvider({ children }) {
 
       return true;
     } catch (error) {
-      alert(
+      showModal(
         error.response?.data?.message ||
-          "Gagal menambahkan buku ke keranjang."
+          "Gagal menambahkan buku ke keranjang.",
+        "error",
+        { title: "Gagal menambahkan buku" },
       );
 
       return false;
@@ -93,13 +117,40 @@ export function CartProvider({ children }) {
 
   // Menghapus buku dari keranjang
   const removeFromCart = async (id) => {
+    const item = cart.find((cartItem) => cartItem.cart_item_id === id);
+    const bookTitle = item?.title ?? item?.judul;
+    const confirmed = await confirmModal({
+      title: "Hapus buku dari keranjang?",
+      message: bookTitle
+        ? `Buku "${bookTitle}" akan dihapus dari keranjang.`
+        : "Buku ini akan dihapus dari keranjang.",
+      icon: "fa-trash-can",
+      confirmText: "Hapus",
+      confirmButtonClass: "btn-danger",
+    });
+
+    if (!confirmed) return;
+
     try {
       await API.delete(`/cart/${id}`);
       await refreshCart();
+      showModal(
+        bookTitle
+          ? `Buku "${bookTitle}" berhasil dihapus dari keranjang.`
+          : "Buku berhasil dihapus dari keranjang.",
+        "success",
+        {
+          title: "Buku dihapus",
+          icon: "fa-trash-can",
+          tone: "danger",
+        },
+      );
     } catch (error) {
-      alert(
+      showModal(
         error.response?.data?.message ||
-          "Gagal menghapus buku dari keranjang."
+          "Gagal menghapus buku dari keranjang.",
+        "error",
+        { title: "Gagal menghapus buku" },
       );
     }
   };
@@ -122,9 +173,11 @@ export function CartProvider({ children }) {
 
       await refreshCart();
     } catch (error) {
-      alert(
+      showModal(
         error.response?.data?.message ||
-          "Gagal memperbarui jumlah buku."
+          "Gagal memperbarui jumlah buku.",
+        "error",
+        { title: "Gagal memperbarui keranjang" },
       );
     }
   };

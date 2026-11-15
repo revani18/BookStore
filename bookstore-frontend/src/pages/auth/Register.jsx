@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { API } from "../../_api";
+import { useModal } from "../../context/useModal";
 
 export default function Register() {
   const navigate = useNavigate();
+  const { showModal } = useModal();
 
   const [formData, setFormData] = useState({
     name: "",
@@ -12,7 +14,6 @@ export default function Register() {
     password_confirmation: "",
   });
 
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
@@ -24,11 +25,13 @@ export default function Register() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
     setLoading(true);
 
     if (formData.password !== formData.password_confirmation) {
-      setError("Konfirmasi password tidak sesuai.");
+      showModal("Konfirmasi password tidak sesuai.", "error", {
+        title: "Registrasi gagal",
+        icon: "fa-circle-xmark",
+      });
       setLoading(false);
       return;
     }
@@ -40,17 +43,25 @@ export default function Register() {
       localStorage.setItem("accessToken", token);
       localStorage.setItem("user", JSON.stringify(user));
 
-      alert("Registrasi berhasil!");
+      showModal("Registrasi berhasil!", "success", {
+        title: "Registrasi berhasil",
+        icon: "fa-user-check",
+      });
       navigate("/");
     } catch (err) {
       const validationErrors = err.response?.data?.errors;
 
       if (validationErrors) {
-        setError(Object.values(validationErrors).flat().join(" "));
+        showModal(Object.values(validationErrors).flat().join(" "), "error", {
+          title: "Registrasi gagal",
+          icon: "fa-circle-xmark",
+        });
       } else {
-        setError(
+        showModal(
           err.response?.data?.message ||
-            "Registrasi gagal. Silakan coba kembali."
+            "Registrasi gagal. Silakan coba kembali.",
+          "error",
+          { title: "Registrasi gagal", icon: "fa-circle-xmark" },
         );
       }
     } finally {
@@ -71,12 +82,6 @@ export default function Register() {
                   Buat akun BookStore untuk mulai menjelajahi koleksi buku.
                 </p>
               </div>
-
-              {error && (
-                <div className="alert alert-danger">
-                  {error}
-                </div>
-              )}
 
               <form onSubmit={handleSubmit}>
                 <div className="mb-3">

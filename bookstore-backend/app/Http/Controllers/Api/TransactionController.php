@@ -15,10 +15,24 @@ class TransactionController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Transaction::with('items.book', 'user');
+        $user = $request->user();
+        $query = Transaction::query()
+            ->select([
+                'id',
+                'user_id',
+                'order_number',
+                'recipient_name',
+                'total_amount',
+                'order_status',
+                'payment_status',
+                'created_at',
+            ])
+            ->withCount('items');
 
-        if ($request->user()->role === 'customer') {
-            $query->where('user_id', $request->user()->id);
+        if ($user->role === 'customer') {
+            $query->where('user_id', $user->id);
+        } else {
+            $query->with('user:id,email');
         }
 
         return response()->json($query->latest()->get());

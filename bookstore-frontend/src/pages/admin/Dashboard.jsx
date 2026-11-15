@@ -1,9 +1,5 @@
 import { useEffect, useState } from "react";
-import { getBooks } from "../../_services/books";
-import { getGenres } from "../../_services/genres";
-import { getAuthors } from "../../_services/authors";
-import { getUsers } from "../../_services/users";
-import { getTransactions } from "../../_services/transaction";
+import { getDashboardSummary } from "../../_services/dashboard";
 
 export default function Dashboard() {
   const user = JSON.parse(localStorage.getItem("user") || "{}");
@@ -37,49 +33,32 @@ export default function Dashboard() {
   useEffect(() => {
     const fetchDashboard = async () => {
       try {
-        const [
-          booksResponse,
-          genresResponse,
-          authorsResponse,
-          usersResponse,
-          transactionsResponse,
-        ] = await Promise.all([
-          getBooks(),
-          getGenres(),
-          getAuthors(),
-          getUsers(),
-          getTransactions(),
-        ]);
+        const response = await getDashboardSummary();
+        const { statistics: counts, transactions: latestTransactions } =
+          response.data.data;
 
         setStatistics([
           {
             title: "Total Buku",
-            value: booksResponse.data.length,
+            value: counts.books,
             description: "Jumlah buku terdaftar",
           },
           {
             title: "Total Genre",
-            value: genresResponse.data.length,
+            value: counts.genres,
             description: "Genre buku",
           },
           {
             title: "Total Penulis",
-            value: authorsResponse.data.length,
+            value: counts.authors,
             description: "Penulis terdaftar",
           },
           {
             title: "Total Pelanggan",
-            value: usersResponse.data.length,
+            value: counts.users,
             description: "Pelanggan terdaftar",
           },
         ]);
-
-        const latestTransactions = [...transactionsResponse.data]
-          .sort(
-            (a, b) =>
-              new Date(b.created_at) - new Date(a.created_at),
-          )
-          .slice(0, 5);
 
         setTransactions(latestTransactions);
       } catch (error) {

@@ -133,6 +133,8 @@ export default function AdminUsers() {
                         src={`${profileImageStorage}/${user.profile_photo.split("/").pop()}`}
                         alt={user.name}
                         className="h-12 w-12 rounded-full object-cover shadow-sm"
+                        loading="lazy"
+                        decoding="async"
                       />
                     ) : (
                       <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-100 text-gray-400">

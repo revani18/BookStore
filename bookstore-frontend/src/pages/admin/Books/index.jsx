@@ -19,7 +19,7 @@ export default function AdminBooks() {
         setLoading(true);
       }
 
-      const response = await getBooks();
+      const response = await getBooks({ summary: true });
 
       cachedBooks = response.data;
       setBooks(response.data);
@@ -166,6 +166,8 @@ export default function AdminBooks() {
                         src={`${storageUrl}/${book.cover_image}`}
                         alt={book.title}
                         className="h-16 w-12 rounded-lg object-cover shadow-sm"
+                        loading="lazy"
+                        decoding="async"
                       />
                     ) : (
                       <div className="flex h-16 w-12 items-center justify-center rounded-lg bg-gray-100 text-gray-400">

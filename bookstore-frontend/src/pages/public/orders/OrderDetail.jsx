@@ -1,9 +1,12 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { API } from "../../../_api";
+import { useModal } from "../../../context/useModal";
 
 
 export default function OrderDetail() {
+  const navigate = useNavigate();
+  const { showModal } = useModal();
   const { id } = useParams();
 
   const [order, setOrder] = useState(null);
@@ -14,19 +17,32 @@ export default function OrderDetail() {
     const getOrderDetail = async () => {
       try {
         const response = await API.get(`/my-transactions/${id}`);
+        if (!response.data) {
+          const message = "Pesanan tidak ditemukan.";
+          setError(message);
+          showModal(message, "error", {
+            title: "Pesanan tidak ditemukan",
+            onOk: () => navigate("/orders"),
+          });
+          return;
+        }
+
         setOrder(response.data);
       } catch (err) {
-        setError(
-          err.response?.data?.message ||
-            "Gagal mengambil detail pesanan."
-        );
+        const message =
+          err.response?.data?.message || "Gagal mengambil detail pesanan.";
+        setError(message);
+        showModal(message, "error", {
+          title: "Gagal memuat detail pesanan",
+          onOk: () => navigate("/orders"),
+        });
       } finally {
         setLoading(false);
       }
     };
 
     getOrderDetail();
-  }, [id]);
+  }, [id, navigate, showModal]);
 
   const formatPrice = (price) =>
     new Intl.NumberFormat("id-ID", {
@@ -60,16 +76,7 @@ export default function OrderDetail() {
   }
 
   if (error || !order) {
-    return (
-      <div className="container py-5">
-        <div className="alert alert-danger">
-          {error || "Pesanan tidak ditemukan."}
-        </div>
-        <Link to="/orders" className="btn btn-primary">
-          Kembali ke Riwayat
-        </Link>
-      </div>
-    );
+    return null;
   }
 
   return (

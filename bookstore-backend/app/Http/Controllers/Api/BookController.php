@@ -15,7 +15,26 @@ class BookController extends Controller
     // Menampilkan semua buku dan fitur pencarian
     public function index(Request $request)
     {
-        $query = Book::with(['author', 'genre']);
+        if ($request->boolean('summary')) {
+            $query = Book::query()
+                ->select([
+                    'id',
+                    'author_id',
+                    'genre_id',
+                    'title',
+                    'isbn',
+                    'price',
+                    'stock',
+                    'cover_image',
+                    'created_at',
+                ])
+                ->with([
+                    'author:id,name',
+                    'genre:id,name',
+                ]);
+        } else {
+            $query = Book::with(['author', 'genre']);
+        }
 
         if ($request->filled('search')) {
             $search = $request->search;

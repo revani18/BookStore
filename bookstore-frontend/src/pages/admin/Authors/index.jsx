@@ -162,6 +162,8 @@ export default function AdminAuthors() {
                         src={`${storageUrl}/${author.photo}`}
                         alt={author.name}
                         className="h-16 w-12 rounded-lg object-cover shadow-sm"
+                        loading="lazy"
+                        decoding="async"
                       />
                     ) : (
                       <div className="flex h-16 w-12 items-center justify-center rounded-lg bg-gray-100 text-gray-400">

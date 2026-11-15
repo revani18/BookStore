@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import styles from "../styles/ProductList.module.css";
 import { useCart } from "../context/useCart";
+import { useModal } from "../context/useModal";
 import { API, bookImageStorage } from "../_api";
 
 export default function ProductList({ showFilters = false }) {
@@ -14,6 +15,7 @@ export default function ProductList({ showFilters = false }) {
   const [error, setError] = useState("");
 
   const { totalItems, addToCart, cart } = useCart();
+  const { showModal } = useModal();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -21,26 +23,33 @@ export default function ProductList({ showFilters = false }) {
         setLoading(true);
         setError("");
 
-        const [booksResponse, genresResponse] = await Promise.all([
-          API.get("/books"),
-          API.get("/genres"),
-        ]);
+        const requests = [API.get("/books")];
+
+        if (showFilters) {
+          requests.push(API.get("/genres"));
+        }
+
+        const [booksResponse, genresResponse] = await Promise.all(requests);
 
         const booksData = booksResponse.data.data ?? booksResponse.data;
-        const genresData = genresResponse.data.data ?? genresResponse.data;
+        const genresData = genresResponse
+          ? (genresResponse.data.data ?? genresResponse.data)
+          : [];
 
         setBooksList(Array.isArray(booksData) ? booksData : []);
         setCategories(Array.isArray(genresData) ? genresData : []);
       } catch (err) {
         console.error(err);
-        setError("Gagal mengambil data buku. Silakan coba kembali.");
+        const message = "Gagal mengambil data buku. Silakan coba kembali.";
+        setError(message);
+        showModal(message, "error", { title: "Buku gagal dimuat" });
       } finally {
         setLoading(false);
       }
     };
 
     fetchData();
-  }, []);
+  }, [showFilters, showModal]);
 
   const formatPrice = (price) =>
     new Intl.NumberFormat("id-ID", {
@@ -72,8 +81,10 @@ export default function ProductList({ showFilters = false }) {
     const added = await addToCart(book);
 
     if (added) {
-      window.alert(
+      showModal(
         `Buku "${book.title ?? book.judul}" berhasil ditambahkan ke keranjang!`,
+        "success",
+        { title: "Buku ditambahkan ke keranjang", icon: "fa-cart-plus" },
       );
     }
   };
@@ -157,7 +168,7 @@ export default function ProductList({ showFilters = false }) {
               Memuat koleksi buku...
             </p>
           ) : error ? (
-            <p className="text-center py-5 text-danger">{error}</p>
+            null
           ) : filteredBooks.length === 0 ? (
             <p className="text-center py-5 text-body-secondary">
               Buku tidak ditemukan.

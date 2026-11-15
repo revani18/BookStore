@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { Navigate, Link } from "react-router-dom";
 import { API, profileImageStorage } from "../../../_api";
+import { useModal } from "../../../context/useModal";
 
 export default function Profile() {
+  const { showModal } = useModal();
   const token = localStorage.getItem("accessToken");
 
   const [user, setUser] = useState(
@@ -20,9 +22,13 @@ export default function Profile() {
         setUser(userData);
         localStorage.setItem("user", JSON.stringify(userData));
       } catch (err) {
-        setError(
-          err.response?.data?.message || "Gagal mengambil informasi profil.",
-        );
+        const message =
+          err.response?.data?.message || "Gagal mengambil informasi profil.";
+        setError(message);
+        showModal(message, "error", {
+          title: "Gagal memuat profil",
+          onOk: () => setError(""),
+        });
       } finally {
         setLoading(false);
       }
@@ -31,7 +37,7 @@ export default function Profile() {
     if (token) {
       getProfile();
     }
-  }, [token]);
+  }, [showModal, token]);
 
   if (!token) {
     return <Navigate to="/login" replace />;
@@ -47,11 +53,7 @@ export default function Profile() {
   }
 
   if (error) {
-    return (
-      <div className="container py-5">
-        <div className="alert alert-danger">{error}</div>
-      </div>
-    );
+    return null;
   }
 
   const profilePhoto = user?.profile_photo

@@ -1,16 +1,17 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { API } from "../../_api";
+import { useModal } from "../../context/useModal";
 
 export default function Login() {
   const navigate = useNavigate();
+  const { showModal } = useModal();
 
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
 
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
@@ -22,7 +23,6 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
     setLoading(true);
 
     try {
@@ -35,7 +35,10 @@ export default function Login() {
 
       API.defaults.headers.common.Authorization = `Bearer ${token}`;
 
-      alert("Login berhasil!");
+      showModal("Login berhasil!", "success", {
+        title: "Login berhasil",
+        icon: "fa-user-check",
+      });
 
       if (user.role === "admin") {
         navigate("/admin/dashboard", { replace: true });
@@ -43,9 +46,11 @@ export default function Login() {
         navigate("/", { replace: true });
       }
     } catch (err) {
-      setError(
+      showModal(
         err.response?.data?.message ||
-          "Email atau password tidak sesuai."
+          "Email atau password tidak sesuai.",
+        "error",
+        { title: "Login gagal", icon: "fa-circle-xmark" },
       );
     } finally {
       setLoading(false);
@@ -68,12 +73,6 @@ export default function Login() {
                   Silakan masuk untuk melanjutkan belanja buku.
                 </p>
               </div>
-
-              {error && (
-                <div className="alert alert-danger" role="alert">
-                  {error}
-                </div>
-              )}
 
               <form onSubmit={handleSubmit}>
                 <div className="mb-3">

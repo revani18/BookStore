@@ -94,13 +94,7 @@ export default function Cart() {
                       <button
                         type="button"
                         className="btn btn-sm btn-outline-danger"
-                        onClick={async () => {
-                          const bookTitle = item.title ?? item.judul;
-                          await removeFromCart(item.cart_item_id);
-                          window.alert(
-                            `Buku "${bookTitle}" berhasil dihapus dari keranjang.`,
-                          );
-                        }}
+                        onClick={() => removeFromCart(item.cart_item_id)}
                       >
                         <i className="fa-solid fa-trash me-1" />
                         Hapus

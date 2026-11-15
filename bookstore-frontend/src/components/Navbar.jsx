@@ -1,13 +1,26 @@
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useCart } from "../context/useCart";
+import { useModal } from "../context/useModal";
 
 export default function Navbar() {
   const navigate = useNavigate();
+  const { confirmModal } = useModal();
   const { totalItems } = useCart();
 
   const isLoggedIn = Boolean(localStorage.getItem("accessToken"));
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    const confirmed = await confirmModal({
+      title: "Apakah Anda yakin ingin keluar?",
+      icon: "fa-right-from-bracket",
+      tone: "info",
+      confirmText: "Ya, Keluar",
+      cancelText: "Batal",
+      confirmButtonClass: "btn-primary",
+    });
+
+    if (!confirmed) return;
+
     localStorage.removeItem("accessToken");
     localStorage.removeItem("user");
 

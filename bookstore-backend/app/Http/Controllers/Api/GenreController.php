@@ -14,7 +14,7 @@ class GenreController extends Controller
     public function index()
     {
         return response()->json(
-            Genre::with('books')->latest()->get()
+            Genre::latest()->get()
         );
     }
 

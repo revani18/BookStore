@@ -2,10 +2,12 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "../../../context/useCart";
 import { API } from "../../../_api";
+import { useModal } from "../../../context/useModal";
 
 export default function Checkout() {
   const navigate = useNavigate();
   const { cart, cartTotal } = useCart();
+  const { showModal } = useModal();
 
   const [form, setForm] = useState({
     recipient_name: "",
@@ -17,7 +19,6 @@ export default function Checkout() {
   });
 
   const [loading, setLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
 
   const formatPrice = (price) =>
     new Intl.NumberFormat("id-ID", {
@@ -70,10 +71,11 @@ export default function Checkout() {
   // Membuat pesanan dan menuju pembayaran Midtrans
   const handleCheckout = async (event) => {
     event.preventDefault();
-    setErrorMessage("");
 
     if (cart.length === 0) {
-      alert("Keranjang belanja kamu masih kosong.");
+      showModal("Keranjang belanja kamu masih kosong.", "warning", {
+        title: "Keranjang masih kosong",
+      });
       navigate("/books");
       return;
     }
@@ -87,11 +89,17 @@ export default function Checkout() {
       if (transaction?.payment_url) {
         window.location.href = transaction.payment_url;
       } else {
-        setErrorMessage(
-          "Pesanan berhasil dibuat, tetapi tautan pembayaran tidak tersedia."
+        showModal(
+          "Pesanan berhasil dibuat, tetapi tautan pembayaran tidak tersedia.",
+          "warning",
+          {
+            title: "Tautan pembayaran tidak tersedia",
+            icon: "fa-clock",
+            onOk: () => navigate("/orders"),
+          },
         );
-        setLoading(false);
       }
+      setLoading(false);
     } catch (error) {
       const responseData = error.response?.data;
 
@@ -99,11 +107,15 @@ export default function Checkout() {
         const firstError = Object.values(responseData.errors)
           .flat()[0];
 
-        setErrorMessage(firstError || "Periksa kembali data pesanan.");
+        showModal(firstError || "Periksa kembali data pesanan.", "error", {
+          title: "Checkout gagal",
+        });
       } else {
-        setErrorMessage(
+        showModal(
           responseData?.message ||
-            "Pesanan gagal diproses. Silakan coba kembali."
+            "Pesanan gagal diproses. Silakan coba kembali.",
+          "error",
+          { title: "Checkout gagal" },
         );
       }
 
@@ -229,11 +241,6 @@ export default function Checkout() {
                   />
                 </div>
 
-                {errorMessage && (
-                  <div className="alert alert-danger mt-3">
-                    {errorMessage}
-                  </div>
-                )}
               </div>
             </div>
           </div>
@@ -302,11 +309,6 @@ export default function Checkout() {
                 >
                   Kembali ke Keranjang
                 </Link>
-
-                <small className="text-body-secondary d-block mt-3">
-                  Pembayaran akan dilanjutkan melalui Midtrans
-                  Sandbox setelah pesanan berhasil dibuat.
-                </small>
               </div>
             </div>
           </div>

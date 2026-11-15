@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { API } from "../../../_api";
-
+import { useModal } from "../../../context/useModal";
 
 export default function Orders() {
+  const { showModal } = useModal();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -14,17 +15,19 @@ export default function Orders() {
         const response = await API.get("/my-transactions");
         setOrders(response.data);
       } catch (err) {
-        setError(
-          err.response?.data?.message ||
-            "Gagal mengambil riwayat pesanan."
-        );
+        const message =
+          err.response?.data?.message || "Gagal mengambil riwayat pesanan.";
+        setError(message);
+        showModal(message, "error", {
+          title: "Gagal memuat riwayat pesanan",
+        });
       } finally {
         setLoading(false);
       }
     };
 
     getOrders();
-  }, []);
+  }, [showModal]);
 
   const formatPrice = (price) =>
     new Intl.NumberFormat("id-ID", {
@@ -59,8 +62,6 @@ export default function Orders() {
   return (
     <section className="container py-5">
       <h1 className="fw-bold mb-4">Riwayat Pesanan</h1>
-
-      {error && <div className="alert alert-danger">{error}</div>}
 
       {!error && orders.length === 0 && (
         <div className="text-center py-5">
@@ -106,7 +107,9 @@ export default function Orders() {
                   <span className="text-body-secondary">
                     Jumlah jenis buku
                   </span>
-                  <strong>{order.items?.length || 0} jenis</strong>
+                  <strong>
+                    {order.items_count ?? order.items?.length ?? 0} jenis
+                  </strong>
                 </div>
 
                 <div className="d-flex justify-content-between mb-3">

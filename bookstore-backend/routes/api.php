@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\TransactionController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\MidtransNotificationController;
 use App\Http\Controllers\Api\ContactMessageController;
+use App\Http\Controllers\Api\DashboardController;
 
 // API untuk pengunjung
 Route::post('/register', [AuthController::class, 'register']);
@@ -49,6 +50,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Fitur admin
     Route::middleware('role:admin')->group(function () {
+        Route::get('/dashboard/summary', [DashboardController::class, 'summary']);
 
         // Kelola penulis
         Route::post('/authors', [AuthorController::class, 'store']);

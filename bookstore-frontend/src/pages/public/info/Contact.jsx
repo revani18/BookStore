@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { createContactMessage } from "../../../_services/contactMessages";
+import { useModal } from "../../../context/useModal";
 
 const emptyForm = {
   name: "",
@@ -9,9 +10,9 @@ const emptyForm = {
 };
 
 export default function Contact() {
+  const { showModal } = useModal();
   const [formData, setFormData] = useState(emptyForm);
   const [submitting, setSubmitting] = useState(false);
-  const [notice, setNotice] = useState(null);
 
   const handleChange = (event) => {
     setFormData({
@@ -22,16 +23,16 @@ export default function Contact() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    setNotice(null);
     setSubmitting(true);
 
     try {
       await createContactMessage(formData);
       setFormData(emptyForm);
-      setNotice({
-        type: "success",
-        text: "Pesan berhasil dikirim. Terima kasih telah menghubungi BookStore!",
-      });
+      showModal(
+        "Pesan berhasil dikirim. Terima kasih telah menghubungi BookStore!",
+        "success",
+        { title: "Pesan berhasil dikirim", icon: "fa-envelope-circle-check" },
+      );
     } catch (error) {
       console.error(error);
       const validationErrors = error.response?.data?.errors;
@@ -39,13 +40,16 @@ export default function Contact() {
         ? Object.values(validationErrors).flat()[0]
         : null;
 
-      setNotice({
-        type: "danger",
-        text:
-          firstValidationError ||
+      showModal(
+        firstValidationError ||
           error.response?.data?.message ||
           "Pesan gagal dikirim. Silakan coba kembali.",
-      });
+        "error",
+        {
+          title: "Pesan gagal dikirim",
+          icon: "fa-circle-xmark",
+        },
+      );
     } finally {
       setSubmitting(false);
     }
@@ -113,12 +117,6 @@ export default function Contact() {
           <div className="card border-0 shadow-sm">
             <div className="card-body p-4">
               <h5 className="fw-bold mb-3">Kirim Pesan</h5>
-
-              {notice && (
-                <div className={`alert alert-${notice.type}`} role="alert">
-                  {notice.text}
-                </div>
-              )}
 
               <form onSubmit={handleSubmit}>
                 <div className="mb-3">
