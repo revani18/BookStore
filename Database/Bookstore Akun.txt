@@ -1,0 +1,9 @@
+Bookstore Akun
+
+Admin
+admin@bookstore.com
+admin12345
+
+Customer
+customer@gmail.com
+password123
